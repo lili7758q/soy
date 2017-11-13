@@ -26,6 +26,7 @@ public class soy extends JFrame {
 				try {
 					soy frame = new soy();
 					frame.setVisible(true);
+					System.out.println("test1");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -50,7 +51,6 @@ public class soy extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
-		
 		
 	}
 
