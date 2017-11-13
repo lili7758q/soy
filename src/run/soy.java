@@ -27,6 +27,7 @@ public class soy extends JFrame {
 					soy frame = new soy();
 					frame.setVisible(true);
 					System.out.println("test1");
+					System.out.println("test2");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
