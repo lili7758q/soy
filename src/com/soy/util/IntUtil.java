@@ -30,6 +30,10 @@ import org.apache.http.impl.cookie.BestMatchSpecFactory;
 import org.apache.http.impl.cookie.BrowserCompatSpecFactory;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
+
+import com.soy.run.testRun;
+
 import org.apache.http.client.methods.CloseableHttpResponse;
 
 /** 
@@ -43,7 +47,7 @@ public class IntUtil {
 	static CookieStore cookieStore = null;
 	static HttpClientContext context = null;
 	static CloseableHttpClient client;
-	
+	static Logger log = Logger.getLogger(IntUtil.class);
 	
 	
 	public IntUtil (String urlMain,String charset){
@@ -57,15 +61,23 @@ public class IntUtil {
 	* @date 2017年11月16日 下午7:06:02 
 	* @description  POST
 	*/ 
-	public HttpResponse post(String url,Map<String,String> paraMap) throws Exception {
+	public Map post(String url,Map<String,String> paraMap) throws Exception {
 		List <NameValuePair>paraList = new ArrayList<NameValuePair>();
 		map2ListParam(paraMap,paraList);
+		Map map = new HashMap();
 		
         UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paraList,CHARSET);
         HttpPost post = new HttpPost(UMAIN+url);  
         post.setEntity(entity);
         HttpResponse response = client.execute(post);
-        return response;
+		int code = response.getStatusLine().getStatusCode();
+		String body = EntityUtils.toString(response.getEntity(),CHARSET);
+		log.info("getUrl -- " + UMAIN+url);
+		log.info("code: "+ code);
+		map.put("code", code);
+		map.put("body",body );
+		post.releaseConnection();
+		return map;
 		
 	}
 	
@@ -78,11 +90,37 @@ public class IntUtil {
 		Map map = new HashMap();
 		HttpGet get = new HttpGet(UMAIN+url);
 		HttpResponse response = client.execute(get);
-		map.put("code", response.getStatusLine().getStatusCode());
-		map.put("body", EntityUtils.toString(response.getEntity(),CHARSET));
+		int code = response.getStatusLine().getStatusCode();
+		String body = EntityUtils.toString(response.getEntity(),CHARSET);
+		log.info("getUrl -- " + UMAIN+url);
+		log.info("code: "+ code);
+		map.put("code", code);
+		map.put("body",body );
 		get.releaseConnection();
 		return map;
 	}
+	
+	//买东西
+	public Map buyById (String bid , String n) throws Exception{
+		Map buyMap = new HashMap();
+		buyMap.put("bid", bid);
+		buyMap.put("n", n);
+		Map buyRetMap = this.post("function/paibuyGate.php", buyMap);
+		log.info("购买东西 -- id: "+bid + ",  数量： "+n);
+		return buyRetMap;
+	}
+	//卖东西
+	public Map saleById (String bid , String n , String price , String user) throws Exception{
+		Map saleMap = new HashMap();
+		saleMap.put("bid", bid);
+		saleMap.put("n", n);
+		saleMap.put("p", price);
+		saleMap.put("bp", user);
+		Map buyRetMap = this.post("function/paisellGate.php", saleMap);
+		log.info("拍卖东西 -- id: "+bid + ",  数量： "+n+ ",  价格： "+price+ ",  购买人： "+user);
+		return buyRetMap;
+	}
+	
 	
 	public static void setContext() {
 	    System.out.println("----setContext");

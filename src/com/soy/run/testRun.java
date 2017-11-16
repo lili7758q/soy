@@ -23,37 +23,40 @@ public class testRun {
 	
 	public static void main (String args[]) throws Exception{
 		IntUtil util = new IntUtil(urlMain, charset) ;
-		log.error("test!!!!!!");
+		log.debug("test!!!!!!");
+		log.error("error");
+		log.info("aaaa");
 		//µÇÂ½
 		Map loginMap = new HashMap();
 		loginMap.put("username", "hq1234");
 		loginMap.put("password", "qazaq");
 		loginMap.put("commit", "%B5%C7%C2%BC");
-		HttpResponse loginRes = util.post("passport/deal.php", loginMap);
-		int StatusCode = loginRes.getStatusLine().getStatusCode();
-		if (StatusCode != 200) {
-			if(StatusCode == 404){
-				System.out.println("Á¬½ÓÍøÕ¾Ê§°Ü£¡");
-			}else if (StatusCode == 302){
-				System.out.println("ÕËºÅ»òÕßÃÜÂë²»ÕıÈ·£¡");
-			}
-			return;
-		}
-		System.out.println(new Date());
+		Map loginRetMap = util.post("passport/deal.php", loginMap);
+//		int StatusCode = loginRes.getStatusLine().getStatusCode();
+//		if (StatusCode != 200) {
+//			if(StatusCode == 404){
+//				log.error("Á¬½ÓÍøÕ¾Ê§°Ü£¡");
+//			}else if (StatusCode == 302){
+//				log.error("ÕËºÅ»òÕßÃÜÂë²»ÕıÈ·£¡");
+//			}
+//			return;
+//		}
 		//½øÈëÖ÷Ò³
 		Map map = util.get("login/login.php");
 		if((int)map.get("code")!= 200){
-			System.out.println("µÇÂ½Ê§°Ü£¡");
+			log.error("µÇÂ½Ê§°Ü£¡");
 			return;
 		}
-		System.out.println(new Date());
-		for(int n = 10; n >0;n--){
-			Map indexMap = util.get("index.php");
-			System.out.println("__________"+n+"__________");
-			System.out.println((int)indexMap.get("code"));
-			System.out.println(new Date());
-		}
+		
+		Map indexMap = util.get("index.php");
+		
+		//testBuy
+		Map testmap = util.saleById("9678781", "1" , "10" ,"µ­µ­µÄÏÄÀ¶" );
+		log.error(testmap.get("body"));
+
 
 	}
+	
+
 
 }
