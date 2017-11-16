@@ -2,9 +2,10 @@ package com.soy.util;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.http.Consts;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -37,37 +38,50 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 * @version 1.0 
 */
 public class IntUtil {
-	private static String UMAIN = "http://s2.vvqz.com:8089/";
+	private static String UMAIN = "";
+	private static String CHARSET = "";
 	static CookieStore cookieStore = null;
 	static HttpClientContext context = null;
-	private static String CHARSET = "GB2312";
+	static CloseableHttpClient client;
 	
-	public static void  post(String url) throws Exception {
-		CloseableHttpClient client = HttpClients.createDefault();
-        
-		List <NameValuePair>data = new ArrayList<NameValuePair>();
-		data.add(new BasicNameValuePair("username", "hq1234"));
-		data.add(new BasicNameValuePair("password", "qazaq"));
-		data.add(new BasicNameValuePair("commit", "%B5%C7%C2%BC"));
+	
+	
+	public IntUtil (String urlMain,String charset){
+		this.client = HttpClients.createDefault();
+		this.UMAIN = urlMain;
+		this.CHARSET = charset;
+	}
+	
+	/** 
+	* @author Soy 
+	* @date 2017年11月16日 下午7:06:02 
+	* @description  POST
+	*/ 
+	public HttpResponse post(String url,Map<String,String> paraMap) throws Exception {
+		List <NameValuePair>paraList = new ArrayList<NameValuePair>();
+		map2ListParam(paraMap,paraList);
 		
-        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(data, Consts.UTF_8);
-        HttpPost post = new HttpPost(url);  
-        post.setEntity(new UrlEncodedFormEntity(data,CHARSET));
+        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paraList,CHARSET);
+        HttpPost post = new HttpPost(UMAIN+url);  
+        post.setEntity(entity);
         HttpResponse response = client.execute(post);
-        printResponse(response,CHARSET);
-        System.out.println("--------------");
-        
-        setCookieStore(response);
-        setContext();
-        HttpGet get = new HttpGet(UMAIN+"login/login.php");
-        HttpResponse res = client.execute(get);
-        printResponse(res,CHARSET);
-        System.out.println("--------------");
-        
-        HttpGet get2 = new HttpGet(UMAIN+"index.php");
-        HttpResponse res2 = client.execute(get2);
-        printResponse(res2,CHARSET);
+        return response;
 		
+	}
+	
+	/** 
+	* @author Soy 
+	* @date 2017年11月16日 下午7:08:17 
+	* @description  GET
+	*/ 
+	public Map get (String url) throws Exception {
+		Map map = new HashMap();
+		HttpGet get = new HttpGet(UMAIN+url);
+		HttpResponse response = client.execute(get);
+		map.put("code", response.getStatusLine().getStatusCode());
+		map.put("body", EntityUtils.toString(response.getEntity(),CHARSET));
+		get.releaseConnection();
+		return map;
 	}
 	
 	public static void setContext() {
@@ -104,8 +118,9 @@ public class IntUtil {
 	    cookieStore.addCookie(cookie);
 	  }
 	  
-	  public static void printResponse(HttpResponse httpResponse,String charset)
+	  public HttpEntity getResponse(HttpResponse httpResponse,String charset)
 		      throws Exception {
+		  	Map map = new HashMap();
 		    // 获取响应消息实体
 		    HttpEntity entity = httpResponse.getEntity();
 		    // 响应状态
@@ -122,9 +137,15 @@ public class IntUtil {
 		      System.out.println("response content:"
 		          + responseString.replace("\r\n", ""));
 		    }
+		    return entity;
 		  }
 	
-	public static void main(String []args) throws Exception{
-		post(UMAIN+"passport/deal.php");
-	}
+	  //参数转换
+	  public void map2ListParam (Map<String,String> map,List param){
+		  for (Map.Entry<String, String> entry : map.entrySet()) {
+			  param.add(new BasicNameValuePair(entry.getKey(),entry.getValue()));
+		  }
+	  }
+	
+	
 }
