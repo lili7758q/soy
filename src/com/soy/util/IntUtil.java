@@ -40,6 +40,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 * @author Soy 
 * @date 2017年11月15日 下午5:03:41 
 * @version 1.0 
+* @description 网络访问工具类
 */
 public class IntUtil {
 	private static String UMAIN = "";
@@ -72,7 +73,7 @@ public class IntUtil {
         HttpResponse response = client.execute(post);
 		int code = response.getStatusLine().getStatusCode();
 		String body = EntityUtils.toString(response.getEntity(),CHARSET);
-		log.info("getUrl -- " + UMAIN+url);
+		log.info("Method post() -- " + UMAIN+url);
 		log.info("code: "+ code);
 		map.put("code", code);
 		map.put("body",body );
@@ -92,7 +93,7 @@ public class IntUtil {
 		HttpResponse response = client.execute(get);
 		int code = response.getStatusLine().getStatusCode();
 		String body = EntityUtils.toString(response.getEntity(),CHARSET);
-		log.info("getUrl -- " + UMAIN+url);
+		log.info("Method get() -- " + UMAIN+url);
 		log.info("code: "+ code);
 		map.put("code", code);
 		map.put("body",body );
@@ -100,16 +101,25 @@ public class IntUtil {
 		return map;
 	}
 	
-	//买东西
+	/** 
+	* @author Soy 
+	* @date 2017年11月17日 上午10:10:11 
+	* @description  买东西
+	*/ 
 	public Map buyById (String bid , String n) throws Exception{
 		Map buyMap = new HashMap();
 		buyMap.put("bid", bid);
 		buyMap.put("n", n);
 		Map buyRetMap = this.post("function/paibuyGate.php", buyMap);
-		log.info("购买东西 -- id: "+bid + ",  数量： "+n);
+		log.error("购买东西 -- id: "+bid + ",  数量： "+n);
 		return buyRetMap;
 	}
-	//卖东西
+	
+	/** 
+	* @author Soy 
+	* @date 2017年11月17日 上午10:10:09 
+	* @description  卖东西
+	*/ 
 	public Map saleById (String bid , String n , String price , String user) throws Exception{
 		Map saleMap = new HashMap();
 		saleMap.put("bid", bid);
@@ -117,8 +127,47 @@ public class IntUtil {
 		saleMap.put("p", price);
 		saleMap.put("bp", user);
 		Map buyRetMap = this.post("function/paisellGate.php", saleMap);
-		log.info("拍卖东西 -- id: "+bid + ",  数量： "+n+ ",  价格： "+price+ ",  购买人： "+user);
+		log.error("拍卖东西 -- id: "+bid + ",  数量： "+n+ ",  价格： "+price+ ",  购买人： "+user);
 		return buyRetMap;
+	}
+	
+	/** 
+	* @author Soy 
+	* @date 2017年11月17日 上午10:55:22 
+	* @description 进化 
+	*/ 
+	public Map Jh (String type , String id , String pids,String bhid) throws Exception {
+		Map jhMap = new HashMap();
+		jhMap.put("n", type);//进化线路
+		jhMap.put("id", id);//宠物ID
+		jhMap.put("pids", pids);//使用物品
+		jhMap.put("bhid", bhid);//进化保护
+		Map jhRetMap = this.post("function/jhGate.php", jhMap);
+		log.info("宠物"+id+" "+type+"线路进化,物品ID:"+pids);
+		log.error("宠物"+id+"进化");
+		return jhRetMap;
+	}
+	
+	/** 
+	* @author Soy 
+	* @date 2017年11月17日 下午3:12:25 
+	* @description  合成
+	*/ 
+	public Map hCheng (String aID, String bID, String p1, String p2 ,boolean type ,boolean type1) throws Exception {
+		Map hcMap = new HashMap();
+		hcMap.put("ap", aID);
+		hcMap.put("bp", bID);
+		hcMap.put("p1", p1);
+		hcMap.put("p2", p2);
+		if(type){
+			hcMap.put("type", "do");
+		}
+		if(type1){
+			hcMap.put("type1", "check");
+		}
+		Map hcRetMap = this.post("", hcMap);
+		log.error("合成宠物:");
+		return hcRetMap;
 	}
 	
 	
@@ -185,5 +234,6 @@ public class IntUtil {
 		  }
 	  }
 	
+	  
 	
 }
